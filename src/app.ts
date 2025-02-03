@@ -7,6 +7,11 @@ app.use(express.json());
 app.use(cors());
 
 
+app.get("/", (req, res) => {
+    let helloMessage = "Hello incubator. I could make it"
+    res.send(helloMessage)
+
+})
 app.get('/videos', (req: Request, res: Response) => {
     res.status(200).json(db.videos);
 });
