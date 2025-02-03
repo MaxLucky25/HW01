@@ -16,8 +16,6 @@ app.get("/", (req, res) => {
 app.get('/videos', (req: Request, res: Response) => {
     res.status(200).json(db.videos);
 });
-
-
 app.post('/videos', (req: Request, res: Response) => {
     const { title, author, availableResolutions } = req.body;
 
@@ -51,8 +49,6 @@ app.post('/videos', (req: Request, res: Response) => {
     db.videos.push(newVideo);
     res.status(201).json(newVideo);
 });
-
-// Получить видео по ID
 app.get('/videos/:id', (req: Request, res: Response) => {
     const videoId = parseInt(req.params.id, 10);
     const video = db.videos.find(v => v.id === videoId);
@@ -64,8 +60,6 @@ app.get('/videos/:id', (req: Request, res: Response) => {
 
     res.status(200).json(video);
 });
-
-
 app.put('/videos/:id', (req: Request, res: Response) => {
     const videoId = parseInt(req.params.id, 10);
     const videoIndex = db.videos.findIndex(v => v.id === videoId);
@@ -109,8 +103,6 @@ app.put('/videos/:id', (req: Request, res: Response) => {
     db.videos[videoIndex] = updatedVideo;
     res.status(204).send();
 });
-
-
 app.delete('/videos/:id', (req: Request, res: Response) => {
     const videoId = parseInt(req.params.id, 10);
     const videoIndex = db.videos.findIndex(v => v.id === videoId);
