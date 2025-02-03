@@ -2,20 +2,21 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { db, Video } from './db';
 
-
- const app = express();
+const app = express();
 app.use(express.json());
 app.use(cors());
 
+const validResolutions = ["P144", "P240", "P360", "P480", "P720", "P1080", "P1440", "P2160"];
 
 app.get("/", (req, res) => {
-    let helloMessage = "Hello incubator. I could make it"
-    res.send(helloMessage)
+    let helloMessage = "Hello incubator. I could make it";
+    res.send(helloMessage);
+});
 
-})
 app.get('/videos', (req: Request, res: Response) => {
     res.status(200).json(db.videos);
 });
+
 app.post('/videos', (req: Request, res: Response) => {
     const { title, author, availableResolutions } = req.body;
 
@@ -28,12 +29,15 @@ app.post('/videos', (req: Request, res: Response) => {
     }
     if (!author || typeof author !== 'string' || author.trim().length === 0) {
         errors.push({ message: 'Author is required and must be a non-empty string', field: 'author' });
-    } else if (author.length > 20) { // Добавлена проверка длины автора
+    } else if (author.length > 20) {
         errors.push({ message: 'Author must be no longer than 20 characters', field: 'author' });
     }
     if (!Array.isArray(availableResolutions) || availableResolutions.length === 0) {
         errors.push({ message: 'Available resolutions must be a non-empty array', field: 'availableResolutions' });
+    } else if (!availableResolutions.every(res => validResolutions.includes(res))) {
+        errors.push({ message: 'Available resolutions contain invalid values', field: 'availableResolutions' });
     }
+
     if (errors.length > 0) {
         res.status(400).json({ errorsMessages: errors });
         return;
@@ -43,16 +47,17 @@ app.post('/videos', (req: Request, res: Response) => {
         id: db.videos.length ? db.videos[db.videos.length - 1].id + 1 : 1,
         title,
         author,
-        canBeDownloaded: false, // По умолчанию false, как в документации
-        minAgeRestriction: null, // По умолчанию null
+        canBeDownloaded: false,
+        minAgeRestriction: null,
         createdAt: new Date().toISOString(),
-        publicationDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(), // По умолчанию +1 день
+        publicationDate: new Date(new Date().setDate(new Date().getDate() + 1)).toISOString(),
         availableResolutions,
     };
 
     db.videos.push(newVideo);
     res.status(201).json(newVideo);
 });
+
 app.get('/videos/:id', (req: Request, res: Response) => {
     const videoId = parseInt(req.params.id, 10);
     const video = db.videos.find(v => v.id === videoId);
@@ -64,6 +69,7 @@ app.get('/videos/:id', (req: Request, res: Response) => {
 
     res.status(200).json(video);
 });
+
 app.put('/videos/:id', (req: Request, res: Response) => {
     const videoId = parseInt(req.params.id, 10);
     const videoIndex = db.videos.findIndex(v => v.id === videoId);
@@ -90,6 +96,8 @@ app.put('/videos/:id', (req: Request, res: Response) => {
     }
     if (!Array.isArray(availableResolutions) || availableResolutions.length === 0) {
         errors.push({ message: 'Available resolutions must be a non-empty array', field: 'availableResolutions' });
+    } else if (!availableResolutions.every(res => validResolutions.includes(res))) {
+        errors.push({ message: 'Available resolutions contain invalid values', field: 'availableResolutions' });
     }
     if (minAgeRestriction !== null && (typeof minAgeRestriction !== 'number' || minAgeRestriction < 1 || minAgeRestriction > 18)) {
         errors.push({ message: 'minAgeRestriction must be null or a number between 1 and 18', field: 'minAgeRestriction' });
@@ -116,6 +124,7 @@ app.put('/videos/:id', (req: Request, res: Response) => {
     db.videos[videoIndex] = updatedVideo;
     res.status(204).send();
 });
+
 app.delete('/videos/:id', (req: Request, res: Response) => {
     const videoId = parseInt(req.params.id, 10);
     const videoIndex = db.videos.findIndex(v => v.id === videoId);
@@ -128,10 +137,9 @@ app.delete('/videos/:id', (req: Request, res: Response) => {
     db.videos.splice(videoIndex, 1);
     res.status(204).send();
 });
+
 app.delete('/testing/all-data', (req: Request, res: Response) => {
-
     db.videos = [];
-
     res.status(204).send();
 });
 
