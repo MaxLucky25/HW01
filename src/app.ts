@@ -29,6 +29,9 @@ app.post('/videos', (req: Request, res: Response) => {
     if (!Array.isArray(availableResolutions) || availableResolutions.length === 0) {
         errors.push({ message: 'Available resolutions must be a non-empty array', field: 'availableResolutions' });
     }
+    if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 40) {
+        errors.push({ message: 'Title is required, must be a non-empty string, and max 40 characters', field: 'title' });
+    }
 
     if (errors.length > 0) {
         res.status(400).json({ errorsMessages: errors });
@@ -83,6 +86,9 @@ app.put('/videos/:id', (req: Request, res: Response) => {
     }
     if (minAgeRestriction !== null && (typeof minAgeRestriction !== 'number' || minAgeRestriction < 1 || minAgeRestriction > 18)) {
         errors.push({ message: 'minAgeRestriction must be null or a number between 1 and 18', field: 'minAgeRestriction' });
+    }
+    if (typeof canBeDownloaded !== 'boolean') {
+        errors.push({ message: 'canBeDownloaded must be a boolean', field: 'canBeDownloaded' });
     }
 
     if (errors.length > 0) {
