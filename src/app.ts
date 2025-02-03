@@ -28,6 +28,8 @@ app.post('/videos', (req: Request, res: Response) => {
     }
     if (!author || typeof author !== 'string' || author.trim().length === 0) {
         errors.push({ message: 'Author is required and must be a non-empty string', field: 'author' });
+    } else if (author.length > 20) { // Добавлена проверка длины автора
+        errors.push({ message: 'Author must be no longer than 20 characters', field: 'author' });
     }
     if (!Array.isArray(availableResolutions) || availableResolutions.length === 0) {
         errors.push({ message: 'Available resolutions must be a non-empty array', field: 'availableResolutions' });
@@ -95,10 +97,6 @@ app.put('/videos/:id', (req: Request, res: Response) => {
     if (typeof canBeDownloaded !== 'boolean') {
         errors.push({ message: 'canBeDownloaded must be a boolean', field: 'canBeDownloaded' });
     }
-
-
-
-
 
     if (errors.length > 0) {
         res.status(400).json({ errorsMessages: errors });
