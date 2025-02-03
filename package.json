@@ -12,7 +12,9 @@
     "watch": "tsc -w",
     "dev": "nodemon --inspect dist/index.js",
     "jest": "jest -i",
-    "jest:coverage": "jest -i --coverage"
+    "jest:coverage": "jest -i --coverage",
+    "build": "tsc",
+    "start": "node dist/app.js"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
