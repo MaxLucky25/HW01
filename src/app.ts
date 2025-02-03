@@ -23,6 +23,8 @@ app.post('/videos', (req: Request, res: Response) => {
 
     if (!title || typeof title !== 'string' || title.trim().length === 0) {
         errors.push({ message: 'Title is required and must be a non-empty string', field: 'title' });
+    } else if (title.length > 40) {
+        errors.push({ message: 'Title must be no longer than 40 characters', field: 'title' });
     }
     if (!author || typeof author !== 'string' || author.trim().length === 0) {
         errors.push({ message: 'Author is required and must be a non-empty string', field: 'author' });
@@ -30,16 +32,6 @@ app.post('/videos', (req: Request, res: Response) => {
     if (!Array.isArray(availableResolutions) || availableResolutions.length === 0) {
         errors.push({ message: 'Available resolutions must be a non-empty array', field: 'availableResolutions' });
     }
-    if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 40) {
-        errors.push({ message: 'Title is required, must be a non-empty string, and max 40 characters', field: 'title' });
-    }
-    if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 40) {
-        errors.push({ message: 'Title is required, must be a non-empty string, and max 40 characters', field: 'title' });
-    }
-
-
-
-
     if (errors.length > 0) {
         res.status(400).json({ errorsMessages: errors });
         return;
@@ -82,11 +74,17 @@ app.put('/videos/:id', (req: Request, res: Response) => {
     const { title, author, availableResolutions, canBeDownloaded, minAgeRestriction, publicationDate } = req.body;
 
     const errors: { message: string; field: string }[] = [];
+
     if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 40) {
         errors.push({ message: 'Title is required, must be a non-empty string, and max 40 characters', field: 'title' });
     }
     if (!author || typeof author !== 'string' || author.trim().length === 0) {
         errors.push({ message: 'Author is required and must be a non-empty string', field: 'author' });
+    } else if (author.length > 20) {
+        errors.push({ message: 'Author must be no longer than 20 characters', field: 'author' });
+    }
+    if (publicationDate && isNaN(Date.parse(publicationDate))) {
+        errors.push({ message: 'Publication date must be a valid date', field: 'publicationDate' });
     }
     if (!Array.isArray(availableResolutions) || availableResolutions.length === 0) {
         errors.push({ message: 'Available resolutions must be a non-empty array', field: 'availableResolutions' });
