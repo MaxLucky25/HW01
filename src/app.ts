@@ -20,6 +20,7 @@ app.post('/videos', (req: Request, res: Response) => {
     const { title, author, availableResolutions } = req.body;
 
     const errors: { message: string; field: string }[] = [];
+
     if (!title || typeof title !== 'string' || title.trim().length === 0) {
         errors.push({ message: 'Title is required and must be a non-empty string', field: 'title' });
     }
@@ -32,9 +33,11 @@ app.post('/videos', (req: Request, res: Response) => {
     if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 40) {
         errors.push({ message: 'Title is required, must be a non-empty string, and max 40 characters', field: 'title' });
     }
-    if (typeof title !== 'string' || title.trim().length === 0 || title.length > 40) {
+    if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 40) {
         errors.push({ message: 'Title is required, must be a non-empty string, and max 40 characters', field: 'title' });
     }
+
+
 
 
     if (errors.length > 0) {
@@ -82,7 +85,6 @@ app.put('/videos/:id', (req: Request, res: Response) => {
     if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 40) {
         errors.push({ message: 'Title is required, must be a non-empty string, and max 40 characters', field: 'title' });
     }
-
     if (!author || typeof author !== 'string' || author.trim().length === 0) {
         errors.push({ message: 'Author is required and must be a non-empty string', field: 'author' });
     }
@@ -95,6 +97,9 @@ app.put('/videos/:id', (req: Request, res: Response) => {
     if (typeof canBeDownloaded !== 'boolean') {
         errors.push({ message: 'canBeDownloaded must be a boolean', field: 'canBeDownloaded' });
     }
+
+
+
 
 
     if (errors.length > 0) {
