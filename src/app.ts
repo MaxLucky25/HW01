@@ -2,7 +2,8 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { db, Video } from './db';
 
-export const app = express();
+
+ const app = express();
 app.use(express.json());
 app.use(cors());
 
@@ -129,3 +130,4 @@ app.delete('/testing/all-data', (req: Request, res: Response) => {
     res.status(204).send();
 });
 
+export default app;
