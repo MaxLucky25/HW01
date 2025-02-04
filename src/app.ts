@@ -96,19 +96,16 @@ app.put('/videos/:id', (req: Request, res: Response) => {
     }
 
     const { title, author, availableResolutions, canBeDownloaded, minAgeRestriction, publicationDate } = req.body;
-
     const errors: { message: string; field: string }[] = [];
 
     // Проверка title
-    if (!title || typeof title !== 'string' || title.trim().length === 0 || title.length > 40) {
+    if (typeof title !== 'string' || title.trim().length === 0 || title.length > 40) {
         errors.push({ message: 'Title is required, must be a non-empty string, and max 40 characters', field: 'title' });
     }
 
     // Проверка author
-    if (!author || typeof author !== 'string' || author.trim().length === 0) {
-        errors.push({ message: 'Author is required and must be a non-empty string', field: 'author' });
-    } else if (author.length > 20) {
-        errors.push({ message: 'Author must be no longer than 20 characters', field: 'author' });
+    if (typeof author !== 'string' || author.trim().length === 0 || author.length > 20) {
+        errors.push({ message: 'Author is required and must be a non-empty string, max 20 characters', field: 'author' });
     }
 
     // Проверка availableResolutions
@@ -118,41 +115,42 @@ app.put('/videos/:id', (req: Request, res: Response) => {
         errors.push({ message: 'Available resolutions contain invalid values', field: 'availableResolutions' });
     }
 
-    // Проверка canBeDownloaded
-    if (typeof canBeDownloaded !== 'boolean') {
+    // Проверка canBeDownloaded (если передан)
+    if (canBeDownloaded !== undefined && typeof canBeDownloaded !== 'boolean') {
         errors.push({ message: 'canBeDownloaded must be a boolean', field: 'canBeDownloaded' });
     }
 
-    // Проверка minAgeRestriction
-    if (minAgeRestriction !== null && (typeof minAgeRestriction !== 'number' || minAgeRestriction < 1 || minAgeRestriction > 18)) {
-        errors.push({ message: 'minAgeRestriction must be null or a number between 1 and 18', field: 'minAgeRestriction' });
+    // Проверка minAgeRestriction (если передан)
+    if (minAgeRestriction !== undefined && (typeof minAgeRestriction !== 'number' || minAgeRestriction < 1 || minAgeRestriction > 18)) {
+        errors.push({ message: 'minAgeRestriction must be a number between 1 and 18', field: 'minAgeRestriction' });
     }
 
-    // Проверка publicationDate
-    if (publicationDate && !isValidDate(publicationDate)) {
-        errors.push({ message: 'Publication date must be a valid date', field: 'publicationDate' });
+    // Проверка publicationDate (должен быть строкой и валидной датой)
+    if (publicationDate !== undefined) {
+        if (typeof publicationDate !== 'string' || !isValidDate(publicationDate)) {
+            errors.push({ message: 'Publication date must be a valid string date', field: 'publicationDate' });
+        }
     }
 
-    // Если есть ошибки, возвращаем их
     if (errors.length > 0) {
         res.status(400).json({ errorsMessages: errors });
         return;
     }
 
     // Обновляем видео
-    const updatedVideo: Video = {
+    db.videos[videoIndex] = {
         ...db.videos[videoIndex],
         title,
         author,
         availableResolutions,
-        canBeDownloaded: canBeDownloaded || db.videos[videoIndex].canBeDownloaded,
-        minAgeRestriction: minAgeRestriction || db.videos[videoIndex].minAgeRestriction,
-        publicationDate: publicationDate || db.videos[videoIndex].publicationDate,
+        canBeDownloaded: canBeDownloaded ?? db.videos[videoIndex].canBeDownloaded,
+        minAgeRestriction: minAgeRestriction ?? db.videos[videoIndex].minAgeRestriction,
+        publicationDate: publicationDate ?? db.videos[videoIndex].publicationDate,
     };
 
-    db.videos[videoIndex] = updatedVideo;
     res.status(204).send();
 });
+
 
 // Удалить видео по ID
 app.delete('/videos/:id', (req: Request, res: Response) => {
